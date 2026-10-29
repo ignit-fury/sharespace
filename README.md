@@ -1,6 +1,6 @@
 # ShareSpace
 
-A trusted platform for sharing underused campus equipment and spaces at a single institution (Parul University, with fictional demo data). Students discover lab kits, cameras, 3D printers and rooms, prove they are eligible, and book them. Owners stay in control of their property, Campus Operations oversees everything, and every decision is recorded in an audit log.
+A trusted platform for sharing underused campus equipment and spaces at a single institution (Parul University, with fictional demo data). Students discover lab kits, cameras, 3D printers and rooms, prove they are eligible, and book them. Staff and students can also offer their own items, which Campus Operations must approve before anyone can book them. Owners stay in control of their property, Campus Operations oversees everything, and every decision is recorded in an audit log.
 
 **Live demo:** https://sharespace-neon-ten.vercel.app  
 **Source code:** https://github.com/ignit-fury/sharespace
@@ -22,7 +22,7 @@ Click **Guide** in the top bar for the same walkthrough inside the app. Click **
 
 ### One full journey, listing to return (about 5 minutes)
 
-1. **List:** as Dr. Meera Patel, go to Explore and click **Request new resource**. Fill it in and send it for approval.
+1. **List:** as Dr. Meera Patel, go to Explore and click **Request new resource**. Fill it in and send it for approval. (Students can do the same with **Share a resource**; try it as Sana Iqbal.)
 2. **Approve the listing:** switch to Campus Operations. The dashboard shows the pending resource. Open it, then click **Approve and publish**.
 3. **Discover and check eligibility:** switch to Aanya. Open **Soldering Station** in Explore. The request is blocked because Electronics Lab Training is missing, and the reason is shown.
 4. **Complete the training:** go to Training & profiles and finish Electronics Lab Training.
