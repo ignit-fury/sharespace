@@ -40,6 +40,19 @@ assert.deepEqual(await res.json(), { usageRules: ['Use the holder'], safetyInstr
 assert.equal(sent.auth, 'Bearer test-key');
 assert.ok(sent.body!.messages[1].content.includes('Soldering Iron'));
 
+// JSON-mode 400 is retried once without JSON mode.
+let calls: boolean[] = [];
+g.fetch = (async (_url: string, init: RequestInit) => {
+  const jsonMode = 'response_format' in JSON.parse(String(init.body));
+  calls.push(jsonMode);
+  if (jsonMode) return new Response('{"error":{"code":"json_validate_failed"}}', { status: 400 });
+  const content = 'Here you go: {"usageRules":["Use the holder"],"safetyInstructions":[],"returnChecklist":["Switch off"]}';
+  return new Response(JSON.stringify({ choices: [{ message: { content } }] }), { status: 200 });
+}) as typeof fetch;
+const retried = await POST(req({ name: 'Iron', category: 'Electronics' }));
+assert.equal(retried.status, 200);
+assert.deepEqual(calls, [true, false]);
+
 g.fetch = (async () => new Response('{"error":{"message":"secret detail"}}', { status: 401 })) as typeof fetch;
 const failed = await POST(req({ name: 'Iron', category: 'Electronics' }));
 assert.equal(failed.status, 502);

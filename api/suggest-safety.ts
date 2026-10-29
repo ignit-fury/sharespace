@@ -106,22 +106,33 @@ export async function POST(request: Request): Promise<Response> {
   const input = parseInput(body);
   if (typeof input === 'string') return json(400, { error: input });
 
-  let res: Response;
-  try {
-    res = await fetch(GROQ_URL, {
+  const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+  const callGroq = (jsonMode: boolean) =>
+    fetch(GROQ_URL, {
       method: 'POST',
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || DEFAULT_MODEL,
+        model,
         messages: buildMessages(input),
-        response_format: { type: 'json_object' },
+        ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
         temperature: 0.3,
-        max_completion_tokens: 1200,
+        // Short lists need little reasoning; keeps each call well inside free-tier token limits.
+        ...(model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
+        max_completion_tokens: 1000,
       }),
       signal: AbortSignal.timeout(20_000),
     });
+
+  let res: Response;
+  try {
+    res = await callGroq(true);
+    // Groq answers 400 when JSON mode rejects the model's own output (json_validate_failed); retry once without it.
+    if (res.status === 400) res = await callGroq(false);
   } catch {
     return json(502, { error: 'Could not reach the AI service. Try again, or write the rules by hand.' });
+  }
+  if (res.status === 429) {
+    return json(429, { error: 'The AI assistant is busy (usage limit reached). Wait a minute and try again, or write the rules by hand.' });
   }
   if (!res.ok) {
     // Do not forward Groq's error body; it can echo request details.
