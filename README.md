@@ -2,6 +2,9 @@
 
 A trusted platform for sharing underused campus equipment and spaces at a single institution (Parul University, with fictional demo data). Students discover lab kits, cameras, 3D printers and rooms, prove they are eligible, and book them. Owners stay in control of their property, Campus Operations oversees everything, and every decision is recorded in an audit log.
 
+**Live demo:** https://sharespace-neon-ten.vercel.app  
+**Source code:** https://github.com/ignit-fury/sharespace
+
 ## Testing instructions (for judges)
 
 **No login or credentials are needed.** The app runs in demo mode on fictional data saved in your browser. Use the profile menu (top right) to switch between six personas:
