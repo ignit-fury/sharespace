@@ -93,8 +93,13 @@ npm run dev
 ## Disclosure
 
 - Open-source libraries listed above, used under their licences. UI components in `src/components/ui/` follow the shadcn/ui pattern.
-- AI coding assistants were used during development.
+- No pre-existing project template or code was reused; the app was built during the hackathon window.
+- **AI use:** Claude Code (Anthropic) was used extensively as a coding assistant. It wrote most of the code under my direction; I set the scope and rules, reviewed and tested every feature, and decided what to change.
 
 ## Team
 
-_Fill in team member names, roles and contributions before submitting._
+Solo participant.
+
+| Name | Role | Contribution |
+|---|---|---|
+| Prem Patel | Full-stack developer and product owner (Frontend, Product/Research, UI/UX, Testing) | Chose the use case (shared lab equipment and rooms at Parul University) and the target users. Defined the product rules: eligibility, fair-use limits, waitlist, owner listing approval, safety acknowledgements and role-based visibility. Directed the build with an AI coding assistant, reviewed and tested every journey with all six demo personas, reported and fixed bugs (incident and audit visibility, overdue alerts, dashboard counts), and deployed the app to Vercel and GitHub. |
