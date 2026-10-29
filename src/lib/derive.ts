@@ -8,11 +8,16 @@ import { effectiveStatus, getResource, isCommitted, isPublished } from './rules'
 export function belongsTo(user: User, b: Booking, state: DemoState): boolean {
   if (b.userId === user.id) return true;
   if (user.role === 'admin') return true;
-  if (user.role === 'owner') return getResource(state, b.resourceId).ownerId === user.id;
+  return getResource(state, b.resourceId).ownerId === user.id;
   return false;
 }
 
 /** Bookings a persona can see: own, owned-resource, or all (admin). */
+/** True when the user owns at least one resource (owners, and students whose listing was approved or submitted). */
+export function ownsResources(state: DemoState, user: User): boolean {
+  return state.resources.some((r) => r.ownerId === user.id);
+}
+
 export function bookingsVisibleTo(state: DemoState, user: User): Booking[] {
   return state.bookings
     .filter((b) => belongsTo(user, b, state))
@@ -24,7 +29,7 @@ export function pendingApprovalQueue(state: DemoState, user: User): Booking[] {
     .filter(
       (b) =>
         (b.status === 'requested' || b.status === 'waitlisted' || b.extension?.status === 'pending') &&
-        (user.role === 'admin' || (user.role === 'owner' && getResource(state, b.resourceId).ownerId === user.id)),
+        (user.role === 'admin' || getResource(state, b.resourceId).ownerId === user.id),
     )
     .sort((a, b) => Date.parse(a.requestedAt) - Date.parse(b.requestedAt));
 }
@@ -34,7 +39,7 @@ export function activeCheckouts(state: DemoState, user: User): Booking[] {
     (b) =>
       (b.status === 'checked_out' || effectiveStatus(b) === 'overdue') &&
       (user.role === 'admin' ||
-        (user.role === 'owner' && getResource(state, b.resourceId).ownerId === user.id) ||
+        getResource(state, b.resourceId).ownerId === user.id ||
         b.userId === user.id),
   );
 }
@@ -130,7 +135,7 @@ export function kpisForUser(state: DemoState, user: User): Kpis {
     openIncidents: openIncidents(state, user).filter((i) => i.status === 'open').length,
     overdueReturns: overdueBookings(state, user).length,
     waitlisted: state.bookings.filter(
-      (b) => b.status === 'waitlisted' && (user.role === 'admin' || b.userId === user.id || (user.role === 'owner' && getResource(state, b.resourceId).ownerId === user.id)),
+      (b) => b.status === 'waitlisted' && (user.role === 'admin' || b.userId === user.id || getResource(state, b.resourceId).ownerId === user.id),
     ).length,
   };
 }

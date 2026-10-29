@@ -48,7 +48,8 @@ export function ExplorePage() {
     });
   }, [visible, query, category, location, availability, training, user.trainings]);
 
-  const canAdd = user.role === 'admin' || user.role === 'owner';
+  // Anyone can offer a resource; non-admin listings go to Campus Operations for approval.
+  const canAdd = true;
   // Owners manage their own listings; the main grid shows only what they can book.
   const myListings = filtered.filter((r) => r.ownerId === user.id);
   const bookable = filtered.filter((r) => r.ownerId !== user.id);
@@ -68,11 +69,11 @@ export function ExplorePage() {
           <Button
             size="sm"
             onClick={() => {
-              setFormInitial(emptyResourceForm(user.role === 'owner' ? user.id : state.users.find((u) => u.role === 'owner')?.id ?? 'usr-meera'));
+              setFormInitial(emptyResourceForm(user.role !== 'admin' ? user.id : state.users.find((u) => u.role === 'owner')?.id ?? 'usr-meera'));
               setFormOpen(true);
             }}
           >
-            <Settings2 className="h-4 w-4" /> {user.role === 'owner' ? 'Request new resource' : 'New resource'}
+            <Settings2 className="h-4 w-4" /> {user.role === 'admin' ? 'New resource' : user.role === 'student' ? 'Share a resource' : 'Request new resource'}
           </Button>
         ) : null}
       </header>

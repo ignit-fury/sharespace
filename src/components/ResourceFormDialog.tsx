@@ -94,7 +94,8 @@ export function ResourceFormDialog({
     setForm(initial);
   }
 
-  const owners = user.role === 'owner' ? [user] : state.users.filter((u) => u.role === 'owner' || u.role === 'admin');
+  // Admins pick any staff owner; keep the current owner listed too (e.g. a student lender) so editing never reassigns it.
+  const owners = user.role !== 'admin' ? [user] : state.users.filter((u) => u.role === 'owner' || u.role === 'admin' || u.id === form.ownerId);
   const trainings = state.trainings;
 
   const set = <K extends keyof ResourceFormState>(field: K, value: ResourceFormState[K]) =>
@@ -137,9 +138,9 @@ export function ResourceFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{form.id ? 'Edit resource' : user.role === 'owner' ? 'Request a new resource' : 'Register a resource'}</DialogTitle>
+          <DialogTitle>{form.id ? 'Edit resource' : user.role !== 'admin' ? 'Request a new resource' : 'Register a resource'}</DialogTitle>
           <DialogDescription>
-            {!form.id && user.role === 'owner'
+            {!form.id && user.role !== 'admin'
               ? 'Campus Operations reviews every new resource. It is published for booking only after they approve it.'
               : 'Catalog change — recorded in the audit log with actor and field list.'}
           </DialogDescription>
@@ -279,7 +280,7 @@ export function ResourceFormDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">{form.id ? 'Save changes' : user.role === 'owner' ? 'Send for approval' : 'Create resource'}</Button>
+            <Button type="submit">{form.id ? 'Save changes' : user.role !== 'admin' ? 'Send for approval' : 'Create resource'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

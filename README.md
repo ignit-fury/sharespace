@@ -15,7 +15,7 @@ A trusted platform for sharing underused campus equipment and spaces at a single
 | Dr. Meera Patel | Resource owner | Request new listings, approve or reject bookings and extensions on her resources, resolve incidents |
 | Campus Operations | Administrator | Approve new resource listings, see and act on everything |
 | Rohan Kulkarni | Student | Has an overdue laptop with an open delay incident (good for testing incidents) |
-| Sana Iqbal | Student | Electronics-trained; has an approved DSLR booking |
+| Sana Iqbal | Student | Electronics-trained; has an approved DSLR booking. Try **Share a resource** to lend her own item |
 | Prof. Arjun Mehta | Resource owner | Owns the Thermal Camera; sees only incidents on his own resources |
 
 Click **Guide** in the top bar for the same walkthrough inside the app. Click **Reset** at any time to restore the original demo data.
@@ -39,7 +39,7 @@ Click **Guide** in the top bar for the same walkthrough inside the app. Click **
 |---|---|
 | Listings with availability, location, conditions, rules | Explore and resource pages |
 | Search and filtering | Explore: search, category, location, status, "ready for me" |
-| Verified owners and profiles | Owners' new listings need Campus Operations approval; membership verification on profiles |
+| Verified owners and profiles | Staff and students can offer resources; every listing needs Campus Operations approval before anyone can book it. The lister then approves requests for their own item |
 | Eligibility checks (training, membership) | Checked on request and again at approval |
 | Approval, rejection, waiting list | Bookings → Approval queue; first-in, first-out waitlist with lower recent usage as tie-breaker |
 | Conflicts | Two approved bookings can never overlap; re-checked at approval and extension |

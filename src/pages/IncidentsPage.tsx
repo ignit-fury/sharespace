@@ -38,7 +38,6 @@ export function IncidentsPage() {
   const incidents = incidentsVisibleTo(state, user).filter((i) =>
     scope === 'all' ? true : scope === 'open' ? i.status !== 'resolved' : i.status === 'resolved',
   );
-  const canModerate = user.role === 'admin' || user.role === 'owner';
 
   return (
     <div className="space-y-4">
@@ -82,7 +81,7 @@ export function IncidentsPage() {
             const meta = CATEGORY_META[i.category];
             const resource = getResource(state, i.resourceId);
             const reporter = getUser(state, i.reportedBy);
-            const mineToHandle = canModerate;
+            const mineToHandle = user.role === 'admin' || resource.ownerId === user.id;
             return (
               <Card key={i.id} className="p-4">
                 <div className="flex flex-wrap items-center gap-2">

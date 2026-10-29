@@ -450,7 +450,7 @@ export function reportIncident(state: DemoState, input: ReportIncidentInput): Tr
   if (!resourceId) return { state, ok: false, reason: 'Pick the resource or booking this incident is about.' };
   const resource = getResource(state, resourceId);
   if (!resource) return { state, ok: false, reason: 'Unknown resource.' };
-  if (!booking && actor.role === 'student') {
+  if (!booking && actor.role === 'student' && resource.ownerId !== actor.id) {
     const userBookings = state.bookings.filter((b) => b.userId === actor.id && b.resourceId === resource.id);
     if (userBookings.length === 0) {
       return { state, ok: false, reason: 'Incidents must be linked to a booking, the resource, or your recent usage of it.' };
@@ -598,10 +598,8 @@ export interface ResourceInput {
 
 export function saveResource(state: DemoState, actorId: string, input: ResourceInput): Transition {
   const actor = getUser(state, actorId);
-  if (actor.role === 'student') {
-    return { state, ok: false, reason: 'Only resource owners and administrators can register or edit resources.' };
-  }
-  if (actor.role === 'owner') {
+  // Everyone except Campus Operations submits listings for approval and may only edit their own.
+  if (actor.role !== 'admin') {
     const existing = input.id ? state.resources.find((r) => r.id === input.id) : undefined;
     if (existing && existing.ownerId !== actor.id) {
       return { state, ok: false, reason: 'Owners can only edit resources they own.' };
@@ -639,7 +637,7 @@ export function saveResource(state: DemoState, actorId: string, input: ResourceI
       updatedAt: new Date().toISOString(),
     };
     // A rejected submission goes back to Campus Operations once the owner edits it.
-    const resubmitted = actor.role === 'owner' && existing.publication === 'rejected';
+    const resubmitted = actor.role !== 'admin' && existing.publication === 'rejected';
     if (resubmitted) {
       updated.publication = 'pending';
       updated.publicationNote = undefined;

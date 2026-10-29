@@ -26,7 +26,7 @@ const STEPS: { title: string; body: string; hint: string }[] = [
   },
   {
     title: 'Approve it as the owner',
-    body: 'Switch the demo persona to Dr. Meera Patel. In Bookings → Approval queue, open the request (owners can also list new resources; Campus Operations must approve them before students can book). Approval re-checks eligibility and availability at that moment; two approved bookings can never overlap. Rejections need a written reason.',
+    body: 'Switch the demo persona to Dr. Meera Patel. In Bookings → Approval queue, open the request (owners and students can also offer their own resources; Campus Operations must approve each listing before anyone can book it). Approval re-checks eligibility and availability at that moment; two approved bookings can never overlap. Rejections need a written reason.',
     hint: 'Bookings',
   },
   {

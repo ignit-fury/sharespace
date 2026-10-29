@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { BookingDetailDialog } from '@/components/BookingDetailDialog';
 import { useStore } from '@/store/store';
 import { effectiveStatus, getResource, getUser, waitlistPosition } from '@/lib/rules';
-import { bookingsVisibleTo, pendingApprovalQueue } from '@/lib/derive';
+import { bookingsVisibleTo, ownsResources, pendingApprovalQueue } from '@/lib/derive';
 import { cn, fmtRange, timeAgo } from '@/lib/utils';
 import type { DisplayStatus } from '@/types';
 
@@ -42,7 +42,8 @@ export function BookingsPage() {
     });
 
   const rawTab = params.get('tab');
-  const tab: Tab = user.role !== 'student' && (rawTab === 'queue' || rawTab === 'managed') ? rawTab : 'mine';
+  const manages = user.role !== 'student' || ownsResources(state, user);
+  const tab: Tab = manages && (rawTab === 'queue' || rawTab === 'managed') ? rawTab : 'mine';
   const setTab = (t: Tab) => setParams(t === 'mine' ? {} : { tab: t });
 
   const mine = useMemo(() => bookingsVisibleTo(state, user).filter((b) => b.userId === user.id), [state, user]);
@@ -54,7 +55,7 @@ export function BookingsPage() {
     return effectiveStatus(b) === filter;
   });
 
-  const canSeeQueueTab = user.role !== 'student';
+  const canSeeQueueTab = manages;
 
   return (
     <div className="space-y-4">

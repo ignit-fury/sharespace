@@ -64,13 +64,13 @@ function Wordmark({ compact = false }: { compact?: boolean }) {
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const { user, state } = useStore();
   const pending = state.bookings.filter(
-    (b) => b.status === 'requested' && (user.role === 'admin' || (user.role === 'owner' && state.resources.find((r) => r.id === b.resourceId)?.ownerId === user.id)),
+    (b) => b.status === 'requested' && (user.role === 'admin' || state.resources.find((r) => r.id === b.resourceId)?.ownerId === user.id),
   ).length;
   // Only incidents this person can see: own reports/bookings, owned resources, or all for admins.
   const incidentCount = openIncidents(state, user).length;
 
   const badgeFor = (to: string) => {
-    if (to === '/bookings' && user.role !== 'student' && pending > 0) return pending;
+    if (to === '/bookings' && pending > 0) return pending;
     if (to === '/incidents' && incidentCount > 0) return incidentCount;
     return null;
   };
