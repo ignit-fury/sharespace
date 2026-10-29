@@ -71,6 +71,10 @@ export interface Resource {
   usageRules: string[];
   /** Strict handling instructions for equipment that can be damaged or cause injury; borrowers must accept them to request. */
   safetyInstructions?: string[];
+  /** Steps the borrower checks before handing the item back. */
+  returnChecklist?: string[];
+  /** Rules were drafted by the AI assistant; Campus Operations must review them before publication. */
+  aiDrafted?: boolean;
   /** Fair-allocation limits, per user for this resource. */
   limits: {
     maxDurationHours: number;

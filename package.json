@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node tests/suggest-safety.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",

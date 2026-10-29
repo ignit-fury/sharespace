@@ -547,6 +547,7 @@ function ReturnFlow({ bookingId }: { bookingId: string }) {
   const form = useConditionForm();
   const booking = state.bookings.find((b) => b.id === bookingId);
   const initial = booking?.checkIn;
+  const checklist = booking ? getResource(state, booking.resourceId).returnChecklist ?? [] : [];
 
   return (
     <>
@@ -562,6 +563,16 @@ function ReturnFlow({ bookingId }: { bookingId: string }) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {checklist.length ? (
+              <div className="rounded-md border border-teal-200 bg-teal-50 px-2.5 py-2 text-[11px] text-teal-950">
+                <p className="mb-1 font-semibold">Before you hand it back</p>
+                <ul className="space-y-0.5">
+                  {checklist.map((item, i) => (
+                    <li key={i}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             {initial ? (
               <p className="rounded-md border border-border bg-muted/30 px-2.5 py-2 text-[11px] text-muted-foreground">
                 Check-in condition: {conditionLabel(initial.condition)} — {initial.notes}

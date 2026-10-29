@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input, Label, Select, Textarea } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,8 @@ export interface ResourceFormState {
   weeklyLimitHours: string;
   usageRules: string;
   safetyInstructions: string;
+  returnChecklist: string;
+  aiDrafted?: boolean;
 }
 
 export function emptyResourceForm(ownerId: string): ResourceFormState {
@@ -45,6 +48,7 @@ export function emptyResourceForm(ownerId: string): ResourceFormState {
     weeklyLimitHours: '20',
     usageRules: '',
     safetyInstructions: '',
+    returnChecklist: '',
   };
 }
 
@@ -67,6 +71,8 @@ export function resourceToForm(r: Resource): ResourceFormState {
     weeklyLimitHours: r.limits.weeklyLimitHours == null ? '' : String(r.limits.weeklyLimitHours),
     usageRules: r.usageRules.join('\n'),
     safetyInstructions: (r.safetyInstructions ?? []).join('\n'),
+    returnChecklist: (r.returnChecklist ?? []).join('\n'),
+    aiDrafted: r.aiDrafted,
   };
 }
 
@@ -98,6 +104,37 @@ export function ResourceFormDialog({
   const owners = user.role !== 'admin' ? [user] : state.users.filter((u) => u.role === 'owner' || u.role === 'admin' || u.id === form.ownerId);
   const trainings = state.trainings;
 
+  const [suggesting, setSuggesting] = useState(false);
+
+  // Drafts rules with the Groq-backed server function; the owner edits them and Campus Operations reviews before publication.
+  const suggest = async () => {
+    setSuggesting(true);
+    try {
+      const res = await fetch('/api/suggest-safety', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: form.name, category: form.category, model: form.model, description: form.description }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; usageRules?: string[]; safetyInstructions?: string[]; returnChecklist?: string[] };
+      if (!res.ok || !data.usageRules) {
+        toast('error', 'AI assistant unavailable', data.error ?? 'Write the rules by hand, or try again later.');
+        return;
+      }
+      setForm((f) => ({
+        ...f,
+        usageRules: data.usageRules!.join('\n'),
+        safetyInstructions: (data.safetyInstructions ?? []).join('\n'),
+        returnChecklist: (data.returnChecklist ?? []).join('\n'),
+        aiDrafted: true,
+      }));
+      toast('success', 'Draft added', 'Read and edit every line. Campus Operations reviews AI-drafted rules before publishing.');
+    } catch {
+      toast('error', 'AI assistant unavailable', 'Could not reach the server. Write the rules by hand, or try again.');
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
   const set = <K extends keyof ResourceFormState>(field: K, value: ResourceFormState[K]) =>
     setForm((f) => ({ ...f, [field]: value }));
 
@@ -121,6 +158,8 @@ export function ResourceFormDialog({
       weeklyLimitHours: form.weeklyLimitHours ? Number(form.weeklyLimitHours) : null,
       usageRules: form.usageRules,
       safetyInstructions: form.safetyInstructions,
+      returnChecklist: form.returnChecklist,
+      aiDrafted: form.aiDrafted,
     });
     if (result.ok) {
       if (result.detail === 'pending') {
@@ -258,6 +297,18 @@ export function ResourceFormDialog({
               })}
             </div>
           </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-2">
+            <p className="text-[11px] leading-snug text-violet-900">
+              <span className="font-semibold">AI Safety &amp; Listing Assistant</span> drafts usage rules, safety precautions and a return
+              checklist from the name and category. You edit it; Campus Operations reviews it before publishing.
+            </p>
+            <Button type="button" size="sm" variant="outline" className="gap-1.5 text-xs" onClick={suggest} disabled={suggesting || !form.name.trim()}>
+              <Sparkles className="h-3.5 w-3.5" /> {suggesting ? 'Drafting…' : 'Suggest with AI'}
+            </Button>
+          </div>
+          {form.aiDrafted ? (
+            <p className="text-[10px] font-medium text-violet-800">AI-drafted: check every line below before saving.</p>
+          ) : null}
           <div className="space-y-1">
             <Label htmlFor="res-rules" hint="one per line">
               Usage rules
@@ -275,6 +326,18 @@ export function ResourceFormDialog({
               placeholder={'The tip reaches 350 °C — always use the holder.\nWear safety glasses.'}
             />
             <p className="text-[10px] text-muted-foreground">Borrowers must accept these before they can request the resource.</p>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="res-return" hint="one per line">
+              Return checklist
+            </Label>
+            <Textarea
+              id="res-return"
+              value={form.returnChecklist}
+              onChange={(e) => set('returnChecklist', e.target.value)}
+              placeholder={'All probes and clamps back in the case.\nStation switched off and unplugged.'}
+            />
+            <p className="text-[10px] text-muted-foreground">Shown to the borrower when they record the return.</p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

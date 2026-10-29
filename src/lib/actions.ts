@@ -594,6 +594,8 @@ export interface ResourceInput {
   weeklyLimitHours: number | null;
   usageRules: string;
   safetyInstructions: string;
+  returnChecklist: string;
+  aiDrafted?: boolean;
 }
 
 export function saveResource(state: DemoState, actorId: string, input: ResourceInput): Transition {
@@ -629,6 +631,8 @@ export function saveResource(state: DemoState, actorId: string, input: ResourceI
       eligibility: { ...existing.eligibility, requiredTrainings: input.requiredTrainings },
       usageRules: splitLines(input.usageRules),
       safetyInstructions: splitLines(input.safetyInstructions),
+      returnChecklist: splitLines(input.returnChecklist),
+      aiDrafted: input.aiDrafted || existing.aiDrafted,
       limits: {
         maxDurationHours: input.maxDurationHours,
         dailyLimitHours: input.dailyLimitHours,
@@ -675,6 +679,8 @@ export function saveResource(state: DemoState, actorId: string, input: ResourceI
     eligibility: { requiresMembership: true, requiredTrainings: input.requiredTrainings },
     usageRules: splitLines(input.usageRules),
     safetyInstructions: splitLines(input.safetyInstructions),
+    returnChecklist: splitLines(input.returnChecklist),
+    aiDrafted: input.aiDrafted,
     limits: {
       maxDurationHours: input.maxDurationHours,
       dailyLimitHours: input.dailyLimitHours,
@@ -695,7 +701,7 @@ export function saveResource(state: DemoState, actorId: string, input: ResourceI
     actor.role === 'admin'
       ? `${actorLabel} registered “${resource.name}” to the shared catalogue.`
       : `${actorLabel} requested Campus Operations to publish “${resource.name}”.`,
-    `${resource.category} · ${resource.location}`,
+    `${resource.category} · ${resource.location}${resource.aiDrafted ? ' · Rules drafted with the AI assistant and edited by the owner.' : ''}`,
   );
   return { state: next, ok: true, detail: actor.role === 'admin' ? undefined : 'pending' };
 }
@@ -791,6 +797,7 @@ function diffSummary(existing: Resource, updated: Resource): string {
   if (JSON.stringify(existing.limits) !== JSON.stringify(updated.limits)) changes.push('limits');
   if (JSON.stringify(existing.usageRules) !== JSON.stringify(updated.usageRules)) changes.push('usage rules');
   if (JSON.stringify(existing.safetyInstructions ?? []) !== JSON.stringify(updated.safetyInstructions ?? [])) changes.push('safety instructions');
+  if (JSON.stringify(existing.returnChecklist ?? []) !== JSON.stringify(updated.returnChecklist ?? [])) changes.push('return checklist');
   return changes.length ? `Changed: ${changes.join(', ')}.` : 'Saved without field changes.';
 }
 

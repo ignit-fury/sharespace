@@ -152,6 +152,19 @@ export function ResourceDetailPage() {
 
           {isOwnResource ? null : <EligibilityPanel resourceId={resource.id} />}
 
+          {resource.returnChecklist?.length ? (
+            <InfoRowCard icon={<CheckCircle2 className="h-3.5 w-3.5 text-teal-700" />} title="Return checklist">
+              <ul className="space-y-1">
+                {resource.returnChecklist.map((item, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-foreground/80">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-teal-600" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </InfoRowCard>
+          ) : null}
+
           <InfoRowCard icon={<CalendarClock className="h-3.5 w-3.5 text-teal-700" />} title="Committed schedule (next 7 days)">
             <CommittedSchedule resourceId={resource.id} />
           </InfoRowCard>
@@ -227,6 +240,12 @@ function PublicationPanel({ resourceId }: { resourceId: string }) {
           ? 'This resource is not published yet. Students cannot see or book it until Campus Operations approves it.'
           : `Reason: ${resource.publicationNote ?? 'not given'}. Edit the catalog entry to resubmit it for approval.`}
       </p>
+      {pending && resource.aiDrafted ? (
+        <p className="mt-2 rounded-md border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-[11px] text-violet-900">
+          The usage rules, safety instructions and return checklist were drafted with the AI assistant and edited by the owner.
+          {user.role === 'admin' ? ' Read them on this page before approving.' : ''}
+        </p>
+      ) : null}
       {pending && user.role === 'admin' ? (
         <div className="mt-3 space-y-2">
           <Label htmlFor="pub-reason">Reason (required to reject)</Label>

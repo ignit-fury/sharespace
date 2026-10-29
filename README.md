@@ -51,7 +51,17 @@ Click **Guide** in the top bar for the same walkthrough inside the app. Click **
 | Fair usage | Max 3 active bookings per person, per-resource daily and weekly hour caps, max booking length |
 | Role-based access | Student, owner, administrator views and permissions, enforced in the rules |
 | Audit history | Audit log page plus a timeline on each booking |
+| AI Safety & Listing Assistant | "Suggest with AI" in the listing form drafts usage rules, safety precautions and a return checklist with the Groq API; the lister edits them and Campus Operations reviews AI-drafted listings before publishing |
 | Human oversight | No automatic penalties; every rejection, refusal and resolution needs a person and a reason |
+
+## AI Safety & Listing Assistant
+
+When someone lists a resource, **Suggest with AI** sends the name, model, category and description to a server function (`api/suggest-safety.ts`). The function calls the Groq API and returns three short lists: usage rules, safety precautions (empty for rooms and halls) and a return checklist. They fill the form as an editable draft. The listing is flagged "AI-drafted", the audit log records it, and Campus Operations sees a review note before approving. The return checklist is shown on the resource page and again when the borrower records the return.
+
+- The Groq key is read only on the server (`GROQ_API_KEY`); it never reaches the browser or the repository.
+- The model can be changed with `GROQ_MODEL` (default `openai/gpt-oss-20b`).
+- If the key is missing or Groq fails, the form says so and the rules can be written by hand.
+- AI never decides access or publication: a person always reviews and approves.
 
 ## Technology and architecture
 
@@ -60,7 +70,8 @@ Click **Guide** in the top bar for the same walkthrough inside the app. Click **
 - `src/lib/actions.ts`: state changes. Each one re-checks the rules and writes an audit event.
 - `src/lib/derive.ts`: read-only, role-scoped views (queues, dashboard numbers, notifications).
 - `src/store/store.tsx`: saves the demo data in the browser's `localStorage`.
-- Hosted as a static single-page app on Vercel (`vercel.json`).
+- `api/suggest-safety.ts`: Vercel serverless function that calls the Groq API for the listing assistant. Tested in `tests/suggest-safety.test.ts` (`npm test`, Groq mocked).
+- Hosted on Vercel: static single-page app plus the one serverless function (`vercel.json`).
 
 Run locally:
 
@@ -94,7 +105,8 @@ npm run dev
 
 - Open-source libraries listed above, used under their licences. UI components in `src/components/ui/` follow the shadcn/ui pattern.
 - No pre-existing project template or code was reused; the app was built during the hackathon window.
-- **AI use:** Claude Code (Anthropic) was used extensively as a coding assistant. It wrote most of the code under my direction; I set the scope and rules, reviewed and tested every feature, and decided what to change.
+- **AI in the product:** the Groq API (`openai/gpt-oss-20b` by default) drafts listing rules; every draft is edited by the lister and reviewed by Campus Operations.
+- **AI use in development:** Claude Code (Anthropic) was used extensively as a coding assistant. It wrote most of the code under my direction; I set the scope and rules, reviewed and tested every feature, and decided what to change.
 
 ## Team
 
